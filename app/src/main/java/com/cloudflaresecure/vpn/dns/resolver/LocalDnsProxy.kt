@@ -108,7 +108,7 @@ class LocalDnsProxy(
     private fun servFail(queryBytes: ByteArray): ByteArray? {
         if (queryBytes.size < 12) return null
         val copy = queryBytes.copyOf()
-        copy[3] = (copy[3].toInt() and 0xF0.toInt()) or 0x02 // RCODE=2 SERVFAIL
+        copy[3] = ((copy[3].toInt() and 0xF0) or 0x02).toByte() // RCODE=2 SERVFAIL
         return copy
     }
 

@@ -3,7 +3,7 @@ package com.cloudflaresecure.vpn.core.security
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
+import androidx.security.crypto.MasterKeys
 
 /**
  * Android Keystore tabanlı şifreli yapılandırma deposu (spec §7).
@@ -12,14 +12,12 @@ import androidx.security.crypto.MasterKey
  */
 class SecureConfigStore(context: Context) {
 
-    private val masterKey = MasterKey.Builder(context)
-        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-        .build()
+    private val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
 
     private val prefs: SharedPreferences = EncryptedSharedPreferences.create(
         context,
         "secure_vpn_config",
-        masterKey,
+        masterKeyAlias,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )

@@ -26,9 +26,11 @@ cp local.properties.example local.properties
 
 ## Otomatik üretim (GitHub Actions)
 `.github/workflows/build.yml` her push'ta çalışır:
-- Debug APK (kurulabilir) + Release AAB artifact olarak yüklenir
-- Actions > ilgili çalıştırma > Artifacts bölümünden indirilir
-- İmzalı release APK için Secrets ile keystore tanımlanmalıdır
+- Kotlin derleme, birim testleri ve lint geçerse Debug APK üretilip artifact olarak yüklenir.
+- Release AAB ayrıca denenir; R8 veya imzalama hatası APK artifact'ını engellemez.
+- Actions > ilgili çalıştırma > Artifacts bölümünden APK indirilir.
+- GitHub pre-release yayımlamak için Actions > Run workflow ekranında `publish_release` seçin; release APK debug imzalı önizlemedir.
+- Kararlı üretim imzalı APK/AAB için GitHub Secrets ile keystore tanımlanmalıdır.
 
 ## Not: Bu sandbox'ta APK neden derlenemedi?
 Geliştirme ortamının interneti yalnızca github/npm/pypi'ye açık; Google Maven,

@@ -5,6 +5,21 @@ on:
     branches: [ "arena/6e62dd79-vpn", "SGmods", "main" ]
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Debug APK ve kaynak arşivlerini GitHub pre-release olarak yayımla'
+        required: true
+        type: boolean
+        default: false
+      release_tag:
+        description: 'Release etiketi'
+        required: false
+        type: string
+        default: 'v1.0.0-preview'
+
+permissions:
+  contents: write
+  actions: read
 
 jobs:
   build:
@@ -90,7 +105,25 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 90
 
+      - name: GitHub pre-release yayımla
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          gh release create "$RELEASE_TAG" \
+            --target "$GITHUB_SHA" \
+            --title "Cloudflare Secure VPN $RELEASE_TAG (Debug preview)" \
+            --prerelease \
+            --notes "Bu önizleme sürümü CI tarafından oluşturulmuş, debug imzalı APK içerir. Üretim imzalı sürüm değildir. Kaynak arşivleri ve SHA-256 kontrol toplamları da eklenmiştir." \
+            app/build/outputs/apk/debug/*.apk \
+            dist/CloudflareSecureVPN-source.zip \
+            dist/CloudflareSecureVPN-source.swb \
+            dist/SHA256SUMS.txt
+
       - name: Release AAB üret (imzasız — imzalama için Secrets gerekli, bkz. docs/BUILD.md)
+        id: aab
+        continue-on-error: true
         shell: bash
         run: |
           set +e
@@ -100,13 +133,17 @@ jobs:
             grep -E "^e: " bundle.log | head -n 30 | while IFS= read -r line; do echo "::error::$line"; done
             grep -A 25 "What went wrong" bundle.log | head -n 30 | while IFS= read -r line; do echo "::error::$line"; done
             grep -E "Caused by:" bundle.log | head -n 10 | while IFS= read -r line; do echo "::error::$line"; done
+            echo "--- RELEASE BUILD LOG TAIL ---"
+            tail -n 80 bundle.log | while IFS= read -r line; do echo "::error::$line"; done
             exit $CODE
           fi
           echo "AAB başarıyla üretildi"
 
       - name: AAB artifact yükle
+        if: hashFiles('app/build/outputs/bundle/release/*.aab') != ''
         uses: actions/upload-artifact@v4
         with:
           name: CloudflareSecureVPN-release-aab
           path: app/build/outputs/bundle/release/*.aab
           retention-days: 90
+

@@ -26,8 +26,14 @@ cp local.properties.example local.properties   # sdk.dir yolunu düzeltin
 # Çıktı: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Otomatik APK/AAB: GitHub Actions (`.github/workflows/build.yml`) her push'ta
-Debug APK + Release AAB üretir; Actions > Artifacts bölümünden indirilir.
+Otomatik APK: GitHub Actions (`.github/workflows/build.yml`) test ve lint'ten sonra
+Debug APK'yı artifact olarak yükler. Workflow'u elle çalıştırırken `publish_release`
+seçilirse debug imzalı APK ve kaynak arşivleri GitHub pre-release'e eklenir; bu,
+üretim imzalı kararlı sürüm değildir. Release AAB derlemesi ayrıca denenir; imzalama
+ve R8 sonuçları için [docs/BUILD.md](docs/BUILD.md) ile Actions kayıtlarını izleyin.
+
+WireGuard Android tunnel kütüphanesi ve native bileşenleri `wireguard-tunnel/`
+dizininde resmi upstream revizyonlarına sabitlenmiş kaynak olarak bulunur.
 
 ## Mimari (tek uygulama, modüler paketler)
 ```

@@ -150,7 +150,7 @@ class CloudflareVpnService : VpnService() {
 
         connectionManager.setState(ConnectionState.AUTHENTICATING)
         try {
-            tunnelManager.setConfig(config, "cloudflare-secure-vpn")
+            tunnelManager.setConfig(config, "cloudflare-vpn")
             val state = tunnelManager.start()
             if (state != Tunnel.State.UP) {
                 connectionManager.setError(VpnError.HANDSHAKE_TIMEOUT)

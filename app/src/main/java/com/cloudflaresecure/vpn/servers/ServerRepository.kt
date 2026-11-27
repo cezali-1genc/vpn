@@ -31,7 +31,7 @@ class ServerRepository(context: Context) {
 
     suspend fun add(server: VpnServer, clientPrivateKeyBase64: String) {
         val error = ServerValidator.validate(server)
-        require(error == null) { error }
+        require(error == null) { error ?: "Sunucu yapılandırması geçersiz" }
         val current = servers.firstOrNull() ?: emptyList()
         secure.putPrivateKey(server.id, clientPrivateKeyBase64)
         appContext.serverStore.edit { it[key] = encode(current + server) }
@@ -39,7 +39,7 @@ class ServerRepository(context: Context) {
 
     suspend fun update(server: VpnServer, clientPrivateKeyBase64: String? = null) {
         val error = ServerValidator.validate(server)
-        require(error == null) { error }
+        require(error == null) { error ?: "Sunucu yapılandırması geçersiz" }
         val current = servers.firstOrNull() ?: emptyList()
         if (clientPrivateKeyBase64 != null) secure.putPrivateKey(server.id, clientPrivateKeyBase64)
         appContext.serverStore.edit {

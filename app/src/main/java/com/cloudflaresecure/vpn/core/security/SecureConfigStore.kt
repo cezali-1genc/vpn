@@ -15,9 +15,9 @@ class SecureConfigStore(context: Context) {
     private val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
 
     private val prefs: SharedPreferences = EncryptedSharedPreferences.create(
-        context,
         "secure_vpn_config",
         masterKeyAlias,
+        context,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )

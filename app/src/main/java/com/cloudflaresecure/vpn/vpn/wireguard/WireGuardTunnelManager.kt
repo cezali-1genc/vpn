@@ -5,48 +5,38 @@ import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.Tunnel
 import com.wireguard.config.Config
 
-/**
- * Resmî WireGuard Tunnel Library sarmalayıcı (spec §2).
- * Gerçek TUN arayüzü + şifreli WireGuard bağlantısı GoBackend üzerinden kurulur.
- */
-class WireGuardTunnelManager(context: Context) : Tunnel.StateChangeListener {
+/** Resmî WireGuard GoBackend adaptörü (WireGuard Android 1.0.20231018 API). */
+class WireGuardTunnelManager(context: Context) : Tunnel {
 
     private val backend = GoBackend(context)
-    private var tunnel: Tunnel? = null
+    private var config: Config? = null
+    private var name = "cloudflare-vpn"
 
     var onStateChanged: ((Tunnel.State) -> Unit)? = null
 
+    override fun getName(): String = name
+
+    override fun onStateChange(newState: Tunnel.State) {
+        onStateChanged?.invoke(newState)
+    }
+
     @Synchronized
-    fun setConfig(config: Config, tunnelName: String = "cloudflare-secure-vpn"): Tunnel.State {
-        val existing = tunnel
-        val t = if (existing == null) {
-            backend.createTunnel(tunnelName, this)
-        } else {
-            existing
-        }
-        tunnel = t
-        return t.setConfig(config)
+    fun setConfig(config: Config, tunnelName: String = "cloudflare-vpn"): Tunnel.State {
+        require(!Tunnel.isNameInvalid(tunnelName)) { "WireGuard tünel adı geçersiz" }
+        name = tunnelName
+        this.config = config
+        return backend.getState(this)
     }
 
     @Synchronized
     fun start(): Tunnel.State {
-        val t = tunnel ?: throw IllegalStateException("Önce setConfig çağrılmalı")
-        return t.onStateChange(Tunnel.State.UP)
+        val activeConfig = config ?: throw IllegalStateException("Önce setConfig çağrılmalı")
+        return backend.setState(this, Tunnel.State.UP, activeConfig)
     }
 
     @Synchronized
-    fun stop(): Tunnel.State {
-        val t = tunnel ?: return Tunnel.State.DOWN
-        return try {
-            t.onStateChange(Tunnel.State.DOWN)
-        } finally {
-            tunnel = null
-        }
-    }
+    fun stop(): Tunnel.State = backend.setState(this, Tunnel.State.DOWN, null)
 
-    fun state(): Tunnel.State = tunnel?.state ?: Tunnel.State.DOWN
-
-    override fun onStateChange(state: Tunnel.State) {
-        onStateChanged?.invoke(state)
-    }
+    @Synchronized
+    fun state(): Tunnel.State = backend.getState(this)
 }

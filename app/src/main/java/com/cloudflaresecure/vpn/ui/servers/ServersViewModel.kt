@@ -115,14 +115,16 @@ class ServersViewModel(context: Context) : ViewModel() {
                     _uiState.value = _uiState.value.copy(message = "Peer bilgisi bulunamadı.")
                     return@launch
                 }
-                val endpointAddr = peer.endpoint.get()
-                val host = endpointAddr.hostString
+                val endpointAddr = peer.endpoint.orElseThrow {
+                    IllegalArgumentException("WireGuard yapılandırmasında Endpoint eksik")
+                }
+                val host = endpointAddr.host
                 val port = endpointAddr.port
                 val server = VpnServer(
                     name = name.ifBlank { host },
                     endpointHost = host,
                     endpointPort = port,
-                    serverPublicKey = peer.publicKey.base64,
+                    serverPublicKey = peer.publicKey.toBase64(),
                     clientAddress = iface.addresses.firstOrNull()?.toString() ?: "10.8.0.2/32"
                 )
                 val error = ServerValidator.validate(server)
@@ -130,7 +132,7 @@ class ServersViewModel(context: Context) : ViewModel() {
                     _uiState.value = _uiState.value.copy(message = error)
                     return@launch
                 }
-                repo.add(server, iface.privateKey.base64)
+                repo.add(server, iface.keyPair.privateKey.toBase64())
                 _uiState.value = _uiState.value.copy(message = "Yapılandırma içe aktarıldı: ${server.name}")
             } catch (e: WireGuardConfigParser.ParseException) {
                 _uiState.value = _uiState.value.copy(message = e.error.userMessage())

@@ -130,13 +130,11 @@ class CloudflareVpnService : VpnService() {
             .addRoute("0.0.0.0", 0)
             .addDnsServer("127.0.0.1")
             .setBlocking(true)
-        if (settings.ipv6LeakProtection) {
-            // IPv6 trafiğini tünel dışına sızdırmamak için engelle
-            builder.addRoute("::", 0)
-        } else {
-            builder.addAddress("fd00:8::2", 128)
-            builder.addRoute("::", 0)
-        }
+        // IPv6: her durumda adres + route tanımlanır (establish() null dönmesin).
+        // Koruma açıksa IPv6 tünel içine alınır ve WireGuard üzerinden taşınır;
+        // sunucu IPv6 desteklemiyorsa paketler düşer (sızıntı olmaz).
+        builder.addAddress("fd00:8::2", 128)
+        builder.addRoute("::", 0)
         tunFd = builder.establish()
         if (tunFd == null) {
             connectionManager.setError(VpnError.SERVICE_START_FAILED)

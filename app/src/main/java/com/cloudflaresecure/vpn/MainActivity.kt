@@ -94,6 +94,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         ) { padding ->
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier.padding(padding)
+            ) {
             when (selected) {
                 0 -> HomeScreen(
                     state = homeState,
@@ -135,6 +138,7 @@ class MainActivity : ComponentActivity() {
                         versionName = BuildConfig.VERSION_NAME
                     )
                 }
+            }
             }
         }
     }

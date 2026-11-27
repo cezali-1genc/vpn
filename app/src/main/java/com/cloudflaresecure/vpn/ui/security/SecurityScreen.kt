@@ -40,7 +40,7 @@ fun SecurityScreen(
             Text("IPv6 Sızıntı Koruması")
             Switch(checked = settings.ipv6LeakProtection, onCheckedChange = onIpv6Leak)
         }
-        Divider()
+        HorizontalDivider()
         Text("Always-on VPN / Lockdown rehberi", style = MaterialTheme.typography.titleMedium)
         Text(
             "Uygulama Android lockdown modunu kendi başına etkinleştirmez. " +

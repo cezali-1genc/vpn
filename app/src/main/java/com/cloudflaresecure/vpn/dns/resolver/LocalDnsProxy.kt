@@ -57,20 +57,8 @@ class LocalDnsProxy(
             val q = DnsMessageCodec.decodeMessage(queryBytes)
             val question = q.questions.firstOrNull() ?: return servFail(queryBytes)
             val result = doh.query(question.name, question.type)
-            // DoH yanıtını istemciye aynen ilet (ID eşleşmesi DoH tarafında korunur);
-            // ID farklıysa istemci ID'sine uyarla.
-            val msg = result.message
-            if (msg.id != q.id) {
-                // Basit yeniden kodlama: yanıtı istemci ID'si ile döndür
-                // (tam yeniden kodlama yerine DoH yanıtını tercih et)
-                return null
-            }
-            // DoH yanıtını wire formatına çevirmek yerine, sorguyu DoH ile
-            // çözüp sonucu istemciye SERVFAIL yerine gerçek yanıtla dönmek için
-            // yeniden sorgu yanıtı kurulur. Pratik çözüm: DoH ham yanıtı
-            // CloudflareDohClient içinde saklanır; burada codec ile yanıt
-            // kurulur. Bu sürümde ham yanıt akışı için DohResult genişletilebilir.
-            buildResponse(q, msg)
+            // Yanıt her zaman istemci ID'si ile kurulur (buildResponse q.id kullanır).
+            buildResponse(q, result.message)
         } catch (e: Exception) {
             servFail(queryBytes)
         }

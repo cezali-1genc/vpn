@@ -115,9 +115,9 @@ class ServersViewModel(context: Context) : ViewModel() {
                     _uiState.value = _uiState.value.copy(message = "Peer bilgisi bulunamadı.")
                     return@launch
                 }
-                val endpoint = peer.endpoint.get().toString() // host:port
-                val host = endpoint.substringBeforeLast(":")
-                val port = endpoint.substringAfterLast(":").toIntOrNull() ?: 51820
+                val endpointAddr = peer.endpoint.get()
+                val host = endpointAddr.hostString
+                val port = endpointAddr.port
                 val server = VpnServer(
                     name = name.ifBlank { host },
                     endpointHost = host,

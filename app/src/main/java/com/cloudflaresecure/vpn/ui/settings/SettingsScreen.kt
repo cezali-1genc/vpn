@@ -36,7 +36,7 @@ fun SettingsScreen(
             FilterChip(selected = settings.languageCode == "tr", onClick = { onLanguage("tr") }, label = { Text("Türkçe") })
             FilterChip(selected = settings.languageCode == "en", onClick = { onLanguage("en") }, label = { Text("English") })
         }
-        Divider()
+        HorizontalDivider()
         OutlinedButton(onClick = onClearHistory) { Text("Bağlantı geçmişini temizle") }
         Text("Sürüm: $versionName")
         Text("Gizlilik: VPN trafiğiniz reklam/takip amacıyla kullanılmaz ve izinsiz analiz edilmez.")

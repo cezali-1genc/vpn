@@ -12,9 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -33,8 +31,9 @@ class ConnectionManager(context: Context) {
     private val leakChecker = LeakChecker(doh = CloudflareDohClient())
     private val scope = CoroutineScope(Dispatchers.Main + Job())
 
-    private val _info = MutableStateFlow(ConnectionInfo())
-    val info: StateFlow<ConnectionInfo> = _info.asStateFlow()
+    // Paylaşılan singleton durum (servis + UI aynı akışı görür)
+    private val _info = VpnStateHolder.info
+    val info: StateFlow<ConnectionInfo> = _info
 
     private var verifyJob: Job? = null
 

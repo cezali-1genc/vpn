@@ -18,6 +18,28 @@ android {
         vectorDrawables { useSupportLibrary = true }
     }
 
+    // İmzalama: keystore.properties + ortam değişkenlerinden okunur.
+    // Anahtar dosyası repoya ASLA eklenmez (spec §13).
+    signingConfigs {
+        create("release") {
+            val keystoreProps = java.util.Properties().apply {
+                val f = rootProject.file("keystore.properties")
+                if (f.exists()) load(java.io.FileInputStream(f))
+            }
+            val ksPath = keystoreProps.getProperty("storeFile")
+                ?: System.getenv("KEYSTORE_PATH")
+            if (ksPath != null) {
+                storeFile = file(ksPath)
+                storePassword = keystoreProps.getProperty("storePassword")
+                    ?: System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                    ?: System.getenv("KEY_ALIAS")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+                    ?: System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -30,24 +52,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // İmzalama: keystore.properties + ortam değişkenlerinden okunur.
-            // Anahtar dosyası repoya ASLA eklenmez (spec §13).
-            val keystoreProps = java.util.Properties().apply {
-                val f = rootProject.file("keystore.properties")
-                if (f.exists()) load(java.io.FileInputStream(f))
-            }
-            val ksPath = keystoreProps.getProperty("storeFile")
-                ?: System.getenv("KEYSTORE_PATH")
+            val ksPath = System.getenv("KEYSTORE_PATH")
+                ?: java.util.Properties().apply {
+                    val f = rootProject.file("keystore.properties")
+                    if (f.exists()) load(java.io.FileInputStream(f))
+                }.getProperty("storeFile")
             if (ksPath != null) {
-                signingConfig = signingConfigs.create("release") {
-                    storeFile = file(ksPath)
-                    storePassword = keystoreProps.getProperty("storePassword")
-                        ?: System.getenv("KEYSTORE_PASSWORD")
-                    keyAlias = keystoreProps.getProperty("keyAlias")
-                        ?: System.getenv("KEY_ALIAS")
-                    keyPassword = keystoreProps.getProperty("keyPassword")
-                        ?: System.getenv("KEY_PASSWORD")
-                }
+                signingConfig = signingConfigs.getByName("release")
             }
         }
     }
@@ -58,8 +69,10 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
 
-    buildFeatures { compose = true }
-    composeOptions { kotlinCompilerExtensionVersion = "1.5.14" }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
 
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }

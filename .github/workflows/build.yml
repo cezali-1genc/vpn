@@ -24,8 +24,6 @@ jobs:
       - name: Android SDK doğrula ve eksikleri kur
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          ls "$ANDROID_HOME" || ls "$ANDROID_SDK_ROOT" || echo "SDK dizini listelenemedi"
           yes | sdkmanager --licenses || true
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" || true
           echo "sdk.dir=$ANDROID_HOME" > local.properties
@@ -34,8 +32,20 @@ jobs:
       - name: gradlew çalıştırılabilir yap
         run: chmod +x gradlew
 
+      - name: Kotlin derleme kontrolü
+        run: ./gradlew :app:compileDebugKotlin --stacktrace
+
       - name: Birim testleri
         run: ./gradlew test --stacktrace
+
+      - name: Test raporu yayınla
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Birim Testler
+          path: app/build/test-results/testDebugUnitTest/*.xml
+          reporter: java-junit
+          fail-on-error: false
 
       - name: Lint
         run: ./gradlew lint --stacktrace

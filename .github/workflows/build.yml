@@ -17,18 +17,19 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
-      - name: Android SDK kur
-        uses: android-actions/setup-android@v3
+      - name: Gradle kur (cache ile)
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Gradle cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/libs.versions.toml') }}
+      - name: Android SDK doğrula ve eksikleri kur
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          ls "$ANDROID_HOME" || ls "$ANDROID_SDK_ROOT" || echo "SDK dizini listelenemedi"
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" || true
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          cat local.properties
 
       - name: gradlew çalıştırılabilir yap
         run: chmod +x gradlew

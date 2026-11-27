@@ -1,0 +1,60 @@
+name: Android Build (APK + AAB)
+
+on:
+  push:
+    branches: [ "arena/6e62dd79-vpn", "SGmods", "main" ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JDK 17 kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Android SDK kur
+        uses: android-actions/setup-android@v3
+
+      - name: Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/libs.versions.toml') }}
+
+      - name: gradlew çalıştırılabilir yap
+        run: chmod +x gradlew
+
+      - name: Birim testleri
+        run: ./gradlew test --stacktrace
+
+      - name: Lint
+        run: ./gradlew lint --stacktrace
+
+      - name: Debug APK üret
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Release AAB üret (imzasız — imzalama için Secrets gerekli, bkz. docs/BUILD.md)
+        run: ./gradlew bundleRelease --stacktrace
+
+      - name: APK artifact yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: CloudflareSecureVPN-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 90
+
+      - name: AAB artifact yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: CloudflareSecureVPN-release-aab
+          path: app/build/outputs/bundle/release/*.aab
+          retention-days: 90

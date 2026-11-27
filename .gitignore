@@ -1,2 +1,31 @@
-# Google App Engine generated folder
-appengine-generated/
+# Android / Gradle
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+# Signing keys — ASLA commit etme (spec §7, §13)
+*.jks
+*.keystore
+keystore.properties
+# Secrets
+google-services.json
+*.env
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+# Python (araçlar için)
+__pycache__/
+*.pyc
+.venv/
+# dist çıktıları git'te tutulmaz; Release asset olarak yayınlanır
+# (ZIP/SWB kaynak arşivleri docs altında belgelenir)

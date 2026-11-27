@@ -1,0 +1,12 @@
+Cloudflare Secure VPN — Üçüncü Parti Lisans Bildirimleri
+
+- WireGuard Android (wireguard-android): Apache License 2.0 / GPLv2
+  https://github.com/WireGuard/wireguard-android
+- WireGuard tools: GPLv2
+- OkHttp: Apache License 2.0 — https://github.com/square/okhttp
+- Jetpack Compose / Material3: Apache License 2.0
+- AndroidX DataStore / Security-Crypto: Apache License 2.0
+- Kotlin / Coroutines: Apache License 2.0
+
+Bu proje Boost Software License 1.0 (LICENSE) altında dağıtılır;
+bağımlılık lisansları kendi koşullarına tabidir.

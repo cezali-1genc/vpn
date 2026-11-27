@@ -1,0 +1,2 @@
+# Android SDK yolunuzu yazın (bu dosya repoya eklenmez, .gitignore'da)
+sdk.dir=/path/to/Android/Sdk

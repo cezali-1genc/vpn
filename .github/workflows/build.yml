@@ -28,10 +28,15 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Android SDK doğrula ve eksikleri kur
+        shell: bash
         run: |
+          set -euxo pipefail
           echo "ANDROID_HOME=$ANDROID_HOME"
-          yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" "ndk;26.1.10909125" "cmake;3.22.1"
+          SDKMANAGER="$(command -v sdkmanager || find "$ANDROID_HOME" -type f -name sdkmanager -print -quit)"
+          test -n "$SDKMANAGER"
+          "$SDKMANAGER" --version
+          yes | "$SDKMANAGER" --licenses || true
+          "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" "platform-tools" "ndk;26.1.10909125" "cmake;3.22.1"
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           cat local.properties
 
@@ -64,7 +69,7 @@ jobs:
         run: ./gradlew test --stacktrace
 
       - name: Test raporu yayınla
-        if: always()
+        if: always() && hashFiles('app/build/test-results/testDebugUnitTest/*.xml') != ''
         uses: dorny/test-reporter@v1
         with:
           name: Birim Testler

@@ -11,7 +11,7 @@ class DnsCacheTest {
         val q = DnsMessageCodec.Question("example.com", DnsMessageCodec.TYPE_A)
         val r = DnsMessageCodec.Record(
             "example.com", DnsMessageCodec.TYPE_A, 1, ttl,
-            byteArrayOf(93, 184, 216, 34)
+            byteArrayOf(93, 184.toByte(), 216.toByte(), 34)
         )
         return DnsMessageCodec.Message(1, true, 0, listOf(q), listOf(r))
     }

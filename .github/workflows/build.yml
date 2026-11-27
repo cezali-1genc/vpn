@@ -33,7 +33,24 @@ jobs:
         run: chmod +x gradlew
 
       - name: Kotlin derleme kontrolü
-        run: ./gradlew :app:compileDebugKotlin --stacktrace
+        run: |
+          set +e
+          ./gradlew :app:compileDebugKotlin --stacktrace > compile.log 2>&1
+          CODE=$?
+          if [ $CODE -ne 0 ]; then
+            echo "Derleme hataları (annotation olarak):"
+            grep -E "^e: " compile.log | head -n 30 | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+            if ! grep -q "^e: " compile.log; then
+              echo "Kotlin e: satırı yok, son 40 satır:"
+              tail -n 40 compile.log | while IFS= read -r line; do
+                echo "::error::$line"
+              done
+            fi
+            exit $CODE
+          fi
+          echo "Derleme başarılı"
 
       - name: Birim testleri
         run: ./gradlew test --stacktrace

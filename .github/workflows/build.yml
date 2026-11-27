@@ -83,15 +83,26 @@ jobs:
       - name: Debug APK üret
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Release AAB üret (imzasız — imzalama için Secrets gerekli, bkz. docs/BUILD.md)
-        run: ./gradlew bundleRelease --stacktrace
-
       - name: APK artifact yükle
         uses: actions/upload-artifact@v4
         with:
           name: CloudflareSecureVPN-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 90
+
+      - name: Release AAB üret (imzasız — imzalama için Secrets gerekli, bkz. docs/BUILD.md)
+        shell: bash
+        run: |
+          set +e
+          ./gradlew bundleRelease --stacktrace > bundle.log 2>&1
+          CODE=$?
+          if [ $CODE -ne 0 ]; then
+            grep -E "^e: " bundle.log | head -n 30 | while IFS= read -r line; do echo "::error::$line"; done
+            grep -A 25 "What went wrong" bundle.log | head -n 30 | while IFS= read -r line; do echo "::error::$line"; done
+            grep -E "Caused by:" bundle.log | head -n 10 | while IFS= read -r line; do echo "::error::$line"; done
+            exit $CODE
+          fi
+          echo "AAB başarıyla üretildi"
 
       - name: AAB artifact yükle
         uses: actions/upload-artifact@v4

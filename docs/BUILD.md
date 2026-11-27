@@ -2,8 +2,9 @@
 
 ## Gereksinimler
 - JDK 17 (Temurin önerilir)
-- Android SDK (API 34, build-tools 34)
-- İnternet (Google Maven + Maven Central)
+- Android SDK (API 34, build-tools 34), NDK 26.1.10909125 ve CMake 3.22.1
+- Go 1.21.3 (resmî WireGuard userspace/native backend derlemesi için)
+- İnternet (Google Maven + Maven Central + Go modül proxy'si)
 
 ## Yerel derleme
 ```bash

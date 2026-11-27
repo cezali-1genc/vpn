@@ -18,6 +18,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Go 1.21.3 kur (WireGuard native backend)
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21.3'
+          cache-dependency-path: wireguard-tunnel/tools/libwg-go/go.sum
+
       - name: Gradle kur (cache ile)
         uses: gradle/actions/setup-gradle@v4
 
@@ -25,7 +31,7 @@ jobs:
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
           yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" "ndk;26.1.10909125" "cmake;3.22.1"
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           cat local.properties
 

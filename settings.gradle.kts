@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "CloudflareSecureVPN"
-include(":app")
+include(":app", ":wireguard-tunnel")

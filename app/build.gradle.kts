@@ -99,9 +99,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.security.crypto)
-    // Resmî WireGuard Android Tunnel Library (spec §2)
-    // Not: com.wireguard.config.* sınıfları tunnel artifact'ının içindedir.
-    implementation(libs.wireguard.tunnel)
+    // Resmî WireGuard Android Tunnel Library (kaynak + native backend repoda sabitlenmiştir).
+    implementation(project(":wireguard-tunnel"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

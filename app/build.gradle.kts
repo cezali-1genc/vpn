@@ -98,7 +98,6 @@ dependencies {
     implementation(libs.androidx.security.crypto)
     // Resmî WireGuard Android Tunnel Library (spec §2)
     implementation(libs.wireguard.tunnel)
-    implementation(libs.wireguard.config)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

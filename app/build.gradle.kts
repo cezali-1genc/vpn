@@ -1,3 +1,7 @@
+import java.io.File
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,9 +10,9 @@ plugins {
 
 // İmzalama bilgileri android bloğu DIŞINDA okunur (Gradle Kotlin DSL uyumu).
 // Anahtar dosyası repoya ASLA eklenmez (spec §13).
-val keystoreProps = java.util.Properties().apply {
+val keystoreProps = Properties().apply {
     val f = rootProject.file("keystore.properties")
-    if (f.exists()) load(java.io.FileInputStream(f))
+    if (f.exists()) load(FileInputStream(f))
 }
 val ksPath: String? = keystoreProps.getProperty("storeFile")
     ?: System.getenv("KEYSTORE_PATH")
@@ -36,7 +40,7 @@ android {
     signingConfigs {
         create("release") {
             if (ksPath != null) {
-                storeFile = java.io.File(ksPath)
+                storeFile = File(ksPath)
                 storePassword = ksStorePassword
                 keyAlias = ksKeyAlias
                 keyPassword = ksKeyPassword
